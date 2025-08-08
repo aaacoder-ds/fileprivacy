@@ -1,0 +1,71 @@
+name: Build and Push Multi-Arch Image
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci --no-fund --no-audit
+
+      - name: Build web app
+        run: npm run build
+
+      - name: Build static files
+        run: |
+          mkdir -p dist
+          npm run build
+
+      - name: Start Nginx container serving dist
+        run: |
+          docker run -d --rm --name e2e_web -p 8081:80 \
+            -v ${{ github.workspace }}/dist:/usr/share/nginx/html:ro \
+            nginx:1.27-alpine
+
+      - name: Run Playwright E2E via Docker
+        run: |
+          docker run --rm --network host \
+            -e PLAYWRIGHT_BASE_URL=http://localhost:8081 \
+            -v ${{ github.workspace }}:/work -w /work \
+            mcr.microsoft.com/playwright:v1.54.0-jammy \
+            npx playwright test
+
+      - name: Stop e2e web
+        if: always()
+        run: docker stop e2e_web
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: aaacoder-ds/file-privacy-inspector:latest,aaacoder-ds/file-privacy-inspector:${{ github.sha }}
+          cache-from: type=registry,ref=aaacoder-ds/file-privacy-inspector:buildcache
+          cache-to: type=registry,ref=aaacoder-ds/file-privacy-inspector:buildcache,mode=max
+
+
