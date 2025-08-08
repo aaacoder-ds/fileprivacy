@@ -39,8 +39,8 @@ jobs:
           docker run --rm --network host \
             -e PLAYWRIGHT_BASE_URL=http://localhost:8081 \
             -v ${{ github.workspace }}:/work -w /work \
-            mcr.microsoft.com/playwright:v1.54.0-jammy \
-            npx playwright test
+            mcr.microsoft.com/playwright:v1.54.2-jammy \
+            sh -lc "npm i --no-save @playwright/test@1.54.2 && npx playwright test"
 
       - name: Stop e2e web
         if: always()
