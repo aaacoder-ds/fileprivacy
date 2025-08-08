@@ -3,18 +3,8 @@ version: "3.8"
 services:
   web:
     image: ${DOCKER_IMAGE:-ghcr.io/aaacoder-ds/file-privacy-inspector:latest}
-    container_name: fileprivacy-web
     restart: unless-stopped
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.fileprivacy.rule=Host(`fileprivacy.aaacoder.xyz`)
-      - traefik.http.routers.fileprivacy.entrypoints=websecure
-      - traefik.http.routers.fileprivacy.tls.certresolver=letsencrypt
-      - traefik.http.services.fileprivacy.loadbalancer.server.port=80
     ports:
-      - "8080:80" # Optional for local testing; reverse proxy will handle the domain in Dokploy
+      - "3086:80" # Optional for local testing; reverse proxy will handle the domain in Dokploy
     environment:
       - NODE_ENV=production
-
-
-
