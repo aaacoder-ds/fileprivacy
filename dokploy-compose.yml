@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   web:
-    image: ${DOCKER_IMAGE:-aaacoder-ds/file-privacy-inspector:latest}
+    image: ${DOCKER_IMAGE:-ghcr.io/aaacoder-ds/file-privacy-inspector:latest}
     container_name: fileprivacy-web
     restart: unless-stopped
     labels:
