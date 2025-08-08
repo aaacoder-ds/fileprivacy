@@ -10,7 +10,7 @@ function Root() {
       const script = document.createElement('script');
       script.setAttribute('defer', '');
       script.setAttribute('data-domain', 'fileprivacy.aaacoder.xyz');
-      script.src = 'https://plausible.fileprivacy.aaacoder.xyz/js/script.js';
+      script.src = 'https://plausible.aaacoder.xyz/js/script.js';
       document.body.appendChild(script);
     }
   }, []);
